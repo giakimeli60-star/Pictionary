@@ -1,0 +1,176 @@
+index.html
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pictionary Becco</title>
+
+<style>
+body {
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #f0f0f0;
+  margin: 0;
+  padding: 10px;
+  text-align: center;
+}
+
+h1 { margin: 5px 0; }
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  margin: 10px 0;
+}
+
+.cell {
+  height: 45px;
+  border-radius: 8px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  font-size: 12px;
+}
+
+.red { background:#e53935; }
+.yellow { background:#fbc02d; color:black; }
+.green { background:#43a047; }
+.blue { background:#1e88e5; }
+.pink { background:#d81b60; }
+
+.card {
+  background: white;
+  padding: 12px;
+  border-radius: 10px;
+  margin: 10px 0;
+  font-size: 20px;
+  min-height: 50px;
+}
+
+#timer {
+  font-size: 22px;
+  font-weight: bold;
+  margin: 5px 0;
+}
+
+canvas {
+  background: white;
+  border-radius: 10px;
+  touch-action: none;
+}
+
+.controls button {
+  margin: 5px;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  background: black;
+  color: white;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🎨 Pictionary Becco</h1>
+<p>Tocca una casella del tabellone per pescare una carta</p>
+
+<div class="board">
+  <div class="cell red" onclick="drawCard('red')">SFIDA</div>
+  <div class="cell yellow" onclick="drawCard('yellow')">PLA</div>
+  <div class="cell green" onclick="drawCard('green')">?</div>
+  <div class="cell blue" onclick="drawCard('blue')">OGG</div>
+  <div class="cell pink" onclick="drawCard('pink')">AZ</div>
+
+  <div class="cell yellow" onclick="drawCard('yellow')">PLA</div>
+  <div class="cell green" onclick="drawCard('green')">?</div>
+  <div class="cell blue" onclick="drawCard('blue')">OGG</div>
+  <div class="cell pink" onclick="drawCard('pink')">AZ</div>
+  <div class="cell red" onclick="drawCard('red')">SFIDA</div>
+</div>
+
+<div class="card" id="card">🎴 Pesca una carta</div>
+
+<div id="timer">⏱ 60</div>
+
+<canvas id="canvas" width="320" height="300"></canvas>
+
+<div class="controls">
+  <button onclick="clearCanvas()">Cancella</button>
+  <button onclick="startTimer()">Avvia turno</button>
+</div>
+
+<script>
+/* --- CARTE --- */
+const cards = {
+  red: [
+    "SFIDA: l'altra squadra sceglie la parola",
+    "SFIDA: categoria segreta",
+    "SFIDA: tempo dimezzato"
+  ],
+  yellow: ["Cane","Roma","Pirata","Elefante","Cantante"],
+  green: ["Categoria misteriosa","Scegli tu","A sorpresa"],
+  blue: ["Chiave","Telefono","Sedia","Bicchiere","Forbici"],
+  pink: ["Correre","Dormire","Ballare","Volare","Mangiare"]
+};
+
+function drawCard(color) {
+  const list = cards[color];
+  document.getElementById("card").innerText =
+    list[Math.floor(Math.random()*list.length)];
+  clearCanvas();
+}
+
+/* --- TIMER --- */
+let time = 60;
+let interval;
+
+function startTimer() {
+  clearInterval(interval);
+  time = 60;
+  document.getElementById("timer").innerText = "⏱ " + time;
+  interval = setInterval(() => {
+    time--;
+    document.getElementById("timer").innerText = "⏱ " + time;
+    if(time <= 0) {
+      clearInterval(interval);
+      alert("⏰ Tempo scaduto!");
+    }
+  },1000);
+}
+
+/* --- DISEGNO --- */
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+ctx.lineWidth = 3;
+ctx.lineCap = "round";
+let drawing = false;
+
+canvas.addEventListener("touchstart", e => {
+  drawing = true;
+  const t = e.touches[0];
+  ctx.beginPath();
+  ctx.moveTo(t.clientX-canvas.offsetLeft, t.clientY-canvas.offsetTop);
+});
+
+canvas.addEventListener("touchmove", e => {
+  if(!drawing) return;
+  const t = e.touches[0];
+  ctx.lineTo(t.clientX-canvas.offsetLeft, t.clientY-canvas.offsetTop);
+  ctx.stroke();
+});
+
+canvas.addEventListener("touchend", () => drawing=false);
+
+function clearCanvas() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+}
+</script>
+
+</body>
+</html>
